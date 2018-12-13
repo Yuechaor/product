@@ -4,12 +4,12 @@ import 'package:learning_flutter/scoped_models/products.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class CreateProductPage extends StatefulWidget {
-  final Function addProduct;
-  final Product product;
-  final Function updateProduct;
-  final int productIndex;
-  CreateProductPage(
-      {this.addProduct, this.updateProduct, this.product, this.productIndex});
+  // final Function addProduct;
+  // final Product product;
+  // final Function updateProduct;
+  // final int productIndex;
+  // CreateProductPage(
+  //     {this.addProduct, this.updateProduct, this.product, this.productIndex});
   _CreateProductPageState createState() => _CreateProductPageState();
 }
 
@@ -22,10 +22,10 @@ class _CreateProductPageState extends State<CreateProductPage> {
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Widget _buildProductTitle() {
+  Widget _buildProductTitle(Product slectedProduct) {
     return TextFormField(
       //autovalidate: true,
-      initialValue: widget.product == null ? '' : widget.product.title,
+      initialValue: slectedProduct == null ? '' : slectedProduct.title,
       validator: (String value) {
         //if(value.trim().length <= 0){
         if (value.isEmpty || value.length < 5) {
@@ -40,9 +40,9 @@ class _CreateProductPageState extends State<CreateProductPage> {
     );
   }
 
-  Widget _buildProductDecription() {
+  Widget _buildProductDecription(Product slectedProduct) {
     return TextFormField(
-      initialValue: widget.product == null ? '' : widget.product.description,
+      initialValue: slectedProduct == null ? '' : slectedProduct.description,
       validator: (String value) {
         //if(value.trim().length <= 0){
         if (value.isEmpty || value.length < 5) {
@@ -58,10 +58,10 @@ class _CreateProductPageState extends State<CreateProductPage> {
     );
   }
 
-  Widget _buildProductPrice() {
+  Widget _buildProductPrice(Product slectedProduct) {
     return TextFormField(
       initialValue:
-          widget.product == null ? '' : widget.product.price.toString(),
+          slectedProduct == null ? '' : slectedProduct.price.toString(),
       validator: (String value) {
         //if(value.trim().length <= 0){
         if (value.isEmpty ||
@@ -78,13 +78,13 @@ class _CreateProductPageState extends State<CreateProductPage> {
     );
   }
 
-  void _submitCreateProductForm(Function addProduct, Function updateProduct) {
+  void _submitCreateProductForm(Function addProduct, Function updateProduct, [int slectedProductIndex]) {
     if (!_formKey.currentState.validate()) {
       return;
     }
 
     _formKey.currentState.save();
-    if (widget.product == null) {
+    if (slectedProductIndex == null) {
       addProduct(Product(
           title: _createFormData['title'],
           description: _createFormData['description'],
@@ -92,7 +92,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
           image: _createFormData['image']));
     } else {
       updateProduct(
-          widget.productIndex,
           Product(
               title: _createFormData['title'],
               description: _createFormData['description'],
@@ -103,7 +102,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
     Navigator.pushReplacementNamed(context, '/list');
   }
 
-  Widget _createPage(BuildContext context) {
+  Widget _createPage(BuildContext context, Product slectedProduct) {
     final double deviceWidth = MediaQuery.of(context).size.width;
     final double adjustedWidth = deviceWidth > 550 ? 500 : deviceWidth * 0.95;
     final double adjustedPadding = deviceWidth - adjustedWidth;
@@ -119,11 +118,11 @@ class _CreateProductPageState extends State<CreateProductPage> {
             padding: EdgeInsets.symmetric(horizontal: adjustedPadding / 2),
             children: <Widget>[
               //first input box
-              _buildProductTitle(),
+              _buildProductTitle(slectedProduct),
               //second input box
-              _buildProductDecription(),
+              _buildProductDecription(slectedProduct),
               //third input box
-              _buildProductPrice(),
+              _buildProductPrice(slectedProduct),
               SizedBox(
                 height: 10,
               ),
@@ -154,7 +153,8 @@ class _CreateProductPageState extends State<CreateProductPage> {
           ),
           color: Colors.deepOrange,
           textColor: Colors.white,
-          onPressed: ()=>_submitCreateProductForm(model.addProduct,model.updateProduct),
+          onPressed: () =>
+              _submitCreateProductForm(model.addProduct, model.updateProduct, model.slectedProductIndex),
         );
       },
     );
@@ -162,14 +162,19 @@ class _CreateProductPageState extends State<CreateProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget createPage = _createPage(context);
-    return widget.product == null
-        ? createPage
-        : Scaffold(
-            appBar: AppBar(
-              title: Text('Edit Product'),
-            ),
-            body: createPage,
-          );
+    
+    return ScopedModelDescendant<ProductModel>(
+      builder: (context, child, model) {
+        final Widget createPage = _createPage(context,model.slectedProduct);
+        return model.slectedProductIndex == null
+            ? createPage
+            : Scaffold(
+                appBar: AppBar(
+                  title: Text('Edit Product'),
+                ),
+                body: createPage,
+              );
+      },
+    );
   }
 }

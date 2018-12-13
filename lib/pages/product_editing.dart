@@ -42,7 +42,7 @@ class ProductEditing extends StatelessWidget {
             ),
           ),
           body: TabBarView(
-            children: <Widget>[CreateProductPage(), MyProductPage(null, null,null)],
+            children: <Widget>[CreateProductPage(), MyProductPage()],
           )),
     );
   }

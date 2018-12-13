@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ScopedModel<ProductModel>(
-      model: ProductModel(),
+      model: ProductModel(), //初始化一个model，然后所有子孙都可以用
       child: MaterialApp(
         // debugShowMaterialGrid: true,
         theme: ThemeData(
@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
             final int index = int.parse(pathElements[2]);
 
             return MaterialPageRoute<bool>(builder: (BuildContext context) {
-              return ProductDetailPage(null, null, null, null);
+              return ProductDetailPage(index);
             });
           }
           return null;
