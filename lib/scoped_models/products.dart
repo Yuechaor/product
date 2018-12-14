@@ -37,4 +37,18 @@ class ProductModel extends Model {
     _slectedProductIndex = index;
   }
 
+void toggleFavouriteStatus(){
+  final bool isCurrentlyFavourite = slectedProduct.favouriteOrNot;
+  final bool newFavouriteStatus = !isCurrentlyFavourite;
+  final Product updatedProduct = Product(
+    title: slectedProduct.title,
+    price: slectedProduct.price,
+    description: slectedProduct.description,
+    image: slectedProduct.image,
+    favouriteOrNot: newFavouriteStatus
+  );
+  _products[_slectedProductIndex] = updatedProduct;
+  _slectedProductIndex = null;
+  notifyListeners();
+}
 }
