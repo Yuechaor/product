@@ -1,43 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:learning_flutter/pages/product_detail.dart';
-import 'package:learning_flutter/pages/product_editing.dart';
-import 'package:learning_flutter/pages/product_list.dart';
-import 'package:learning_flutter/pages/auth.dart';
-import 'package:learning_flutter/models/product.dart';
-import 'package:learning_flutter/scoped_models/products.dart';
-import 'package:scoped_model/scoped_model.dart';
 
+import 'package:scoped_model/scoped_model.dart';
 // import 'package:flutter/rendering.dart';
 
+import './pages/auth.dart';
+import './pages/products_admin.dart';
+import './pages/products.dart';
+import './pages/product.dart';
+import './scoped-models/main.dart';
+import './models/product.dart';
+
 void main() {
-//debugPaintSizeEnabled = true;
+  // debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
   runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  _MyAppState createState() => _MyAppState();
+  @override
+  State<StatefulWidget> createState() {
+    return _MyAppState();
+  }
 }
 
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return ScopedModel<ProductModel>(
-      model: ProductModel(), //初始化一个model，然后所有子孙都可以用
+    final MainModel model = MainModel();
+    return ScopedModel<MainModel>(
+      model: model,
       child: MaterialApp(
         // debugShowMaterialGrid: true,
         theme: ThemeData(
-          brightness: Brightness.light,
-          primarySwatch: Colors.deepOrange,
-          accentColor: Colors.deepPurple,
-          //fontFamily: 'rmit'
-        ),
-        home: AuthPage(),
+            brightness: Brightness.light,
+            primarySwatch: Colors.deepOrange,
+            accentColor: Colors.deepPurple,
+            buttonColor: Colors.deepPurple),
+        // home: AuthPage(),
         routes: {
-          '/list': (_) => ProductList(), // '/' 和 home 二选一， 不能同时定义
-          '/admin': (_) => ProductEditing(),
+          '/': (BuildContext context) => AuthPage(),
+          '/products': (BuildContext context) => ProductsPage(model),
+          '/admin': (BuildContext context) => ProductsAdminPage(model),
         },
         onGenerateRoute: (RouteSettings settings) {
           final List<String> pathElements = settings.name.split('/');
@@ -45,17 +49,19 @@ class _MyAppState extends State<MyApp> {
             return null;
           }
           if (pathElements[1] == 'product') {
-            final int index = int.parse(pathElements[2]);
-
-            return MaterialPageRoute<bool>(builder: (BuildContext context) {
-              return ProductDetailPage(index);
+            final String productId = pathElements[2];
+            final Product product = model.allProducts.firstWhere((Product product) {
+              return product.id == productId;
             });
+            return MaterialPageRoute<bool>(
+              builder: (BuildContext context) => ProductPage(product),
+            );
           }
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
-          //if registered routes -> ongenerateRoute -> onuNknonwRoute 更像是默认的route
-          return MaterialPageRoute(builder: (_) => ProductList());
+          return MaterialPageRoute(
+              builder: (BuildContext context) => ProductsPage(model));
         },
       ),
     );
